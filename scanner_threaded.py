@@ -1,5 +1,6 @@
 import argparse
 import socket
+import threading
 
 
 def connection_scan(target_ip, target_port):
@@ -20,12 +21,13 @@ def port_scan(target, port_number):
 
     try:
         target_ip = socket.gethostbyname(target)
-        print(f"[*] Scan results for {target_ip} : ")
-        connection_scan(target_ip, port_number)
 
     except OSError:
         print(f"[^] Cannot resolve host {target_ip} : Unknown host ")
         return
+
+    t = threading.Thread(target=connection_scan, args=(target_ip, port_number))
+    t.start()
 
 
 def argument_parser():
@@ -45,6 +47,7 @@ if __name__ == '__main__':
         user_args = argument_parser()
         host = user_args["host"]
         port_list = [int(x) for x in user_args["ports"].split(",")]
+        print(f"[*] Scan results for {host} : ")
         for port in port_list:
             port_scan(host, port)
 
